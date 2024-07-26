@@ -1,14 +1,15 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post
 from django.core.paginator import Paginator, EmptyPage, \
                                   PageNotAnInteger
 from django.views.generic import ListView
 from django.contrib.postgres.search import TrigramSimilarity
-from .forms import EmailPostForm, CommentForm, SearchForm
+from .forms import EmailPostForm, CommentForm, SearchForm, PostForm
 from django.core.mail import send_mail
 from django.views.decorators.http import require_POST
 from taggit.models import Tag
 from django.db.models import Count
+from django.views import View
 
 
 def post_list(request, tag_slug=None):
@@ -138,3 +139,20 @@ def post_search(request):
                   {'form': form,
                    'query': query,
                    'results': results})
+
+
+class PostCreate(View):
+    def get(self, request):
+        form = PostForm
+        return render(request, 'blog/post/post_create_form.html',
+                {'form': form})
+
+    def post(self, request):
+        bound_form = PostForm(request.POST)
+        if bound_form.is_valid():
+            post = bound_form.save(commit=False)
+            post.author = request.user
+            post.save()
+            return redirect('/blog/')
+        return render(request, 'blog/post/post_create_form.html',
+                      {'form': bound_form})

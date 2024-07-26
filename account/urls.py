@@ -1,6 +1,8 @@
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from . import views
+from blog.views import PostCreate
+
 app_name = 'account'
 urlpatterns = [
     # previous login view
@@ -35,4 +37,5 @@ urlpatterns = [
     path('', views.dashboard, name='dashboard'),
     path('register/', views.register, name='register'),
     path('edit/', views.edit, name='edit'),
+    path('post/create/', PostCreate.as_view(), name='post_create'),
 ]
